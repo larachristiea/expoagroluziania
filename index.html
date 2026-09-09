@@ -240,17 +240,24 @@ input[aria-invalid="true"]{border-color:var(--danger)}
    perto do tamanho nativo, e o gradiente da marca preenche as laterais.
    Sem arquivo extra e sem download a mais. */
 @media (min-width:700px){
+  /* Laterais bem escuras: o vídeo é escuro, e derreter num azul claro
+     deixava uma mancha no meio da tela por mais suave que fosse a borda. */
+  .bg{
+    background:
+      radial-gradient(58% 46% at 50% 38%, rgba(3,53,85,.60), transparent 72%),
+      linear-gradient(180deg, #07161F 0%, #040E16 100%);
+  }
   .bg img,.bg video{
-    left:50%;right:auto;width:min(700px,100%);
+    left:50%;right:auto;width:min(780px,100%);
     transform:translateX(-50%);
-    /* A borda do vídeo se dissolve no gradiente. Máscara, não sombra:
-       sombra desenha FORA do elemento e deixa o corte reto aparecendo.
-       Os 90px de cada lado são exatamente a folga até a coluna de texto
-       (700 - 520) / 2 — então o esmaecimento acontece fora do conteúdo. */
+    /* Máscara, não sombra: sombra desenha FORA do elemento e o corte reto
+       continua visível. Aqui a borda do próprio vídeo se dissolve, ao longo
+       de 170px de cada lado — passa de leve por trás do texto, o que só
+       ajuda a leitura. */
     -webkit-mask-image:linear-gradient(to right,
-      transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+      transparent 0, #000 170px, #000 calc(100% - 170px), transparent 100%);
     mask-image:linear-gradient(to right,
-      transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+      transparent 0, #000 170px, #000 calc(100% - 170px), transparent 100%);
   }
   body.t-form .bg img.on,body.t-form .bg video.on{
     transform:translateX(-50%) scale(1.07);
