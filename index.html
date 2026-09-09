@@ -194,7 +194,12 @@ input[aria-invalid="true"]{border-color:var(--danger)}
   box-shadow:0 12px 38px rgba(0,0,0,.55);transition:transform .08s,filter .12s}
 .cta:active{transform:scale(.985);filter:brightness(1.5)}
 .cta[disabled]{opacity:.6;cursor:default}
-.legal{margin:0;padding:0 10px;font-size:10px;line-height:1.45;text-align:center;
+.legal{margin:0;padding:0 10px;font-size:10px;line-height:1.45;
+  /* Justificado, com a última linha centralizada para o bloco fechar simétrico.
+     A hifenização é obrigatória aqui: numa coluna estreita, justificar sem
+     hífen abre buracos entre as palavras. */
+  text-align:justify;text-align-last:center;
+  -webkit-hyphens:auto;hyphens:auto;
   color:rgba(255,255,255,.42);text-shadow:0 1px 8px rgba(0,0,0,.55)}
 .offline{display:none;padding:10px 13px;border-radius:14px;text-align:center;
   background:rgba(255,180,60,.16);border:1px solid rgba(255,180,60,.4);
@@ -400,7 +405,7 @@ const PADRAO = {
   tituloLinha1:'3 meses de internet', tituloLinha2:'por nossa conta.',
   subtitulo:'Para os {vagas} primeiros cadastros do evento.',
   botaoCapa:'Garanta a sua', seloGrupo:'Grupo',
-  textoLegal:'Para os {vagas} primeiros cadastros: 3 primeiros meses grátis no plano de 800 Mbps. A partir do 4º mês, R$ 129,90/mês por 9 meses. Sujeito a viabilidade técnica e regulamento.',
+  textoLegal:'Para os {vagas} primeiros cadastros: 3 primeiros meses grátis no plano de 800 Mbps. A partir do 4º mês, R$ 129,90/mês por 9 meses. Fidelidade de 12 meses. Sujeito a viabilidade técnica e regulamento.',
 
   formTitulo1:'Falta só', formTitulo2:'o seu contato.',
   formApoio:'A gente te chama no WhatsApp para confirmar a vaga.',
