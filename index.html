@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0A1520">
+<title>3 meses de internet grátis</title>
+
+<!-- Poppins. display=swap: o texto aparece na hora na fonte do sistema e
+     troca para a Poppins quando ela chegar. Se a rede do evento não deixar
+     a fonte carregar, a página continua legível — nunca fica em branco
+     esperando. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
+<style>
+/* ─────────────────────────────────────────────────────────
+   MARCA — troque estas cores
+   ───────────────────────────────────────────────────────── */
+:root{
+  /* O azul da marca é escuro. Ele é usado como PREENCHIMENTO (botões, selo,
+     contador), onde funciona muito bem com letra branca por cima. Como cor de
+     TEXTO sobre o vídeo escuro ele seria ilegível — por isso a palavra
+     destacada dos títulos é branca. */
+  --brand:#033555;         /* azul oficial da Link Explorer */
+  --accent:#033555;        /* preenchimentos */
+  --accent-ink:#FFFFFF;    /* texto EM CIMA do azul */
+  --btn:#033555;           /* fundo dos botões */
+  --btn-ink:#FFFFFF;       /* texto dos botões */
+  --destaque:#FFFFFF;      /* palavra destacada nos títulos */
+  --foco:rgba(255,255,255,.62);  /* borda do campo em foco */
+  --bg:#04141F;            /* fundo enquanto o vídeo não chega */
+  --bg2:#033555;           /* segunda cor do gradiente de espera */
+
+  --text:#FFFFFF;
+  --muted:rgba(255,255,255,.72);
+  --danger:#FF8A8A;
+  --line:rgba(255,255,255,.14);
+  --r:18px;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+html{background:var(--bg)}
+body{
+  min-height:100dvh;overflow:hidden;
+  color:var(--text);
+  font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px;line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── fundo ───────────────────────────────────────────────────
+   O gradiente pinta instantâneo. A foto entra por cima quando
+   carregar. Em evento com 4G saturado, isso é a diferença
+   entre uma página bonita e uma tela preta.                  */
+.bg{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(90% 60% at 70% 8%,  color-mix(in srgb, #2E6E9E 34%, transparent), transparent 62%),
+    radial-gradient(85% 70% at 12% 92%, color-mix(in srgb, var(--bg2) 92%, transparent),   transparent 65%),
+    linear-gradient(168deg, var(--bg2) 0%, var(--bg) 62%);
+}
+.bg img,.bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .5s ease,filter .4s ease,transform .4s ease}
+.bg img.on,.bg video.on{opacity:1}
+/* na tela do formulário o fundo desfoca: os campos precisam de contraste */
+body.t-form .bg img.on,body.t-form .bg video.on{filter:blur(11px) brightness(.78);transform:scale(1.07)}
+
+.scrim{position:fixed;inset:0;z-index:1;pointer-events:none;transition:background .4s ease;
+  background:linear-gradient(to bottom, rgba(6,12,20,.55) 0%, rgba(6,12,20,.10) 26%,
+                             rgba(6,12,20,.30) 55%, rgba(6,12,20,.88) 100%)}
+body.t-form .scrim{background:linear-gradient(to bottom, rgba(6,12,20,.62) 0%, rgba(6,12,20,.74) 100%)}
+
+/* ── telas ───────────────────────────────────────────────────
+   Três telas empilhadas. A de fora entra pela direita, como
+   uma navegação de app.                                      */
+.tela{
+  position:fixed;inset:0;z-index:2;
+  display:flex;flex-direction:column;
+  padding:max(16px,env(safe-area-inset-top)) 20px max(18px,env(safe-area-inset-bottom));
+  max-width:520px;margin:0 auto;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  transform:translateX(100%);opacity:0;visibility:hidden;
+  transition:transform .34s cubic-bezier(.32,.72,0,1),opacity .26s ease,visibility .34s;
+}
+.tela.on{transform:none;opacity:1;visibility:visible}
+.tela.esq{transform:translateX(-16%);opacity:0;visibility:hidden}
+
+/* ── topo ── */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;flex:none}
+.evento{font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.85);text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.evento img{display:block;height:52px;width:auto;
+  filter:drop-shadow(0 3px 14px rgba(0,0,0,.55))}
+/* marca de canto: o "L" da Link Explorer, presente nas três telas */
+.canto{display:none;flex:none}
+.canto.on{display:block}
+.canto img{display:block;height:40px;width:auto;
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.5))}
+.top .esq{display:flex;align-items:center;gap:10px;min-width:0}
+/* botão voltar */
+.voltar{width:42px;height:42px;margin-left:-9px;flex:none;border:0;border-radius:50%;cursor:pointer;
+  background:rgba(255,255,255,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  display:grid;place-items:center;transition:background .12s}
+.voltar:active{background:rgba(255,255,255,.2)}
+.voltar::before{content:"";width:11px;height:11px;margin-left:4px;
+  border:2.5px solid #fff;border-right:0;border-top:0;transform:rotate(45deg)}
+
+/* ── TELA 1: capa ── */
+.capa .miolo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:16px;padding:20px 0}
+/* o botão fica junto da oferta, não no pé da tela */
+.capa .miolo .cta{align-self:stretch;margin-top:10px}
+.logo{height:58px;display:grid;place-items:center}
+.logo img{max-height:58px;max-width:min(300px,72vw);object-fit:contain;
+  filter:drop-shadow(0 2px 16px rgba(0,0,0,.55))}
+.logo .marca{font-size:23px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  text-shadow:0 2px 16px rgba(0,0,0,.55)}
+h1{margin:0;max-width:100%;
+  /* Cada linha escrita no configuracao.js ocupa UMA linha na tela: o corpo é
+     reduzido no carregamento até a linha mais longa caber. Ver ajustarTitulo(). */
+  font-size:clamp(31px,8.8vw,44px);line-height:1.06;letter-spacing:-.02em;font-weight:800;
+  text-shadow:0 2px 26px rgba(0,0,0,.55)}
+h1 .l1,h1 em{display:block;white-space:nowrap}
+h1 em{font-style:normal;color:var(--destaque)}
+.sub{margin:0;max-width:31ch;font-size:16.5px;line-height:1.35;color:var(--muted);
+  text-wrap:balance;   /* distribui as linhas em vez de largar uma palavra sozinha */
+  text-shadow:0 1px 14px rgba(0,0,0,.6)}
+/* Frase de posicionamento: fica colada na marca, antes da oferta.
+   Ela diz quem é a empresa — não vende nada. */
+.posicionamento{margin:-6px 0 0;max-width:100%;white-space:nowrap;
+  font-size:13.5px;font-weight:600;line-height:1.35;color:rgba(255,255,255,.80);
+  text-shadow:0 1px 12px rgba(0,0,0,.6)}
+
+.rodape{flex:none;display:flex;flex-direction:column;gap:11px}
+.grupo{display:none;flex:none;align-items:center;justify-content:center;gap:9px;
+  margin-bottom:2px;opacity:.6}
+/* nas telas 2 e 3 o selo fica no pé, separado do conteúdo */
+.form .grupo,.ok .grupo{margin-top:14px}
+.grupo.on{display:flex}
+.grupo span{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.75)}
+.grupo img{height:22px;object-fit:contain}
+
+/* ── TELA 2: formulário ── */
+.form .miolo{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:22px 0}
+.form h2{margin:0;font-size:clamp(28px,8.4vw,36px);line-height:1.05;letter-spacing:-.03em;font-weight:800;
+  text-wrap:balance;
+  text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.form h2 em{font-style:normal;color:var(--destaque)}
+.form .diz{margin:10px 0 0;font-size:16px;line-height:1.35;color:var(--muted);
+  text-wrap:balance;
+  text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.campos{display:flex;flex-direction:column;gap:12px}
+
+label{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 6px 3px}
+input[type=text],input[type=tel]{
+  width:100%;height:58px;padding:0 17px;
+  font-size:18px;font-weight:600;color:var(--text);
+  background:rgba(255,255,255,.09);
+  border:1.5px solid var(--line);border-radius:var(--r);
+  outline:none;transition:border-color .12s,background .12s}
+input::placeholder{color:rgba(255,255,255,.38);font-weight:500}
+input:focus{border-color:var(--foco);background:rgba(255,255,255,.14)}
+input[aria-invalid="true"]{border-color:var(--danger)}
+.erro{display:none;margin:6px 0 0 3px;font-size:13.5px;font-weight:600;color:var(--danger)}
+.erro.on{display:block}
+
+.lgpd{display:flex;gap:11px;align-items:flex-start;margin:2px 3px 0}
+.lgpd input{appearance:none;-webkit-appearance:none;flex:none;
+  width:26px;height:26px;margin:0;border-radius:8px;cursor:pointer;
+  border:1.5px solid var(--line);background:rgba(255,255,255,.09);
+  display:grid;place-content:center;transition:.12s}
+.lgpd input:checked{background:var(--accent);border-color:var(--accent)}
+.lgpd input:checked::after{content:"";width:10px;height:6px;margin-top:-3px;
+  border:2.5px solid var(--accent-ink);border-top:0;border-right:0;transform:rotate(-45deg)}
+.lgpd input[aria-invalid="true"]{border-color:var(--danger)}
+.consent{margin:0;padding-top:3px;cursor:pointer;
+  font-size:12.5px;font-weight:500;line-height:1.4;letter-spacing:normal;
+  text-transform:none;color:rgba(255,255,255,.62)}
+.consent a{color:rgba(255,255,255,.85);text-decoration:underline;
+  text-underline-offset:2px;text-decoration-thickness:1px}
+.consent a:hover,.consent a:focus{color:#fff}
+
+/* ── botões e avisos ── */
+.cta{width:100%;height:62px;border-radius:999px;cursor:pointer;
+  font-size:18px;font-weight:800;letter-spacing:-.015em;
+  color:var(--btn-ink);background:var(--btn);
+  /* o anel claro separa o preto do fundo escuro da foto */
+  border:1px solid rgba(255,255,255,.20);
+  box-shadow:0 12px 38px rgba(0,0,0,.55);transition:transform .08s,filter .12s}
+.cta:active{transform:scale(.985);filter:brightness(1.5)}
+.cta[disabled]{opacity:.6;cursor:default}
+.legal{margin:0;padding:0 10px;font-size:10px;line-height:1.45;text-align:center;
+  color:rgba(255,255,255,.42);text-shadow:0 1px 8px rgba(0,0,0,.55)}
+.offline{display:none;padding:10px 13px;border-radius:14px;text-align:center;
+  background:rgba(255,180,60,.16);border:1px solid rgba(255,180,60,.4);
+  color:#FFCE7A;font-size:13px;font-weight:600}
+.offline.on{display:block}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* ── TELA 3: confirmação ── */
+.ok{padding-inline:26px}
+.ok .miolo{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:15px}
+/* selo: mostra a posição da pessoa. Cheio para quem entrou nas 100,
+   vazado para quem ficou na fila, tique quando ainda não sabemos. */
+.selo{width:94px;height:94px;border-radius:50%;display:grid;place-items:center;
+  font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.selo.dentro{background:var(--accent);color:var(--accent-ink);
+  border:1px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.selo.fora{background:rgba(255,255,255,.07);border:2px solid var(--line);color:var(--text)}
+.selo.check{background:var(--accent);border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.selo.check::after{content:"";width:25px;height:13px;margin-top:-7px;
+  border:4px solid var(--accent-ink);border-top:0;border-right:0;transform:rotate(-45deg)}
+.posRotulo{margin:-6px 0 -2px;font-size:10.5px;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(255,255,255,.55)}
+.ok h2{margin:0;font-size:clamp(28px,8vw,34px);line-height:1.05;letter-spacing:-.025em;font-weight:800;
+  text-wrap:balance;
+  text-shadow:0 2px 22px rgba(0,0,0,.5)}
+.ok p{margin:0;max-width:31ch;font-size:16px;color:var(--muted);
+  text-shadow:0 1px 14px rgba(0,0,0,.6)}
+/* Cada linha escrita no configuracao.js vira um bloco. Assim a sua quebra é
+   respeitada E o navegador ainda equilibra o texto dentro dela — os dois
+   juntos, que é o que uma quebra manual sozinha impede. */
+.ok p .linha{display:block;text-wrap:balance}
+.zap{display:block;width:100%;margin-top:8px;padding:19px;border-radius:999px;
+  background:var(--btn);color:var(--btn-ink);
+  border:1px solid rgba(255,255,255,.20);
+  font-size:17px;font-weight:800;text-decoration:none;box-shadow:0 12px 38px rgba(0,0,0,.55)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-height:670px){
+  h1{font-size:clamp(30px,8.6vw,38px)}
+  .posicionamento{margin-top:-8px}
+  .capa .miolo{gap:12px}
+  .sub{font-size:15px}
+  input[type=text],input[type=tel]{height:52px}
+  .cta{height:56px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <img id="bgImg" alt="" aria-hidden="true">
+  <video id="bgVid" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+</div>
+<div class="scrim"></div>
+
+
+<!-- ══ TELA 1 · capa ══════════════════════════════════════ -->
+<section class="tela capa on" id="capa">
+  <div class="top">
+    <div class="esq"><div class="canto"></div></div>
+    <span class="evento" id="evento">EVENTO</span>
+  </div>
+
+  <div class="miolo">
+    <div class="logo" id="logo"></div>
+    <p class="posicionamento" id="posicionamento"></p>
+    <h1 id="titulo"></h1>
+    <p class="sub" id="sub"></p>
+    <button class="cta" id="btnCapa"></button>
+  </div>
+
+  <div class="rodape">
+    <div class="grupo"></div>
+    <p class="legal" id="legal"></p>
+  </div>
+</section>
+
+
+<!-- ══ TELA 2 · formulário ════════════════════════════════ -->
+<section class="tela form" id="telaForm">
+  <div class="top">
+    <div class="esq">
+      <button class="voltar" id="btnVoltar" type="button" aria-label="Voltar"></button>
+      <div class="canto"></div>
+    </div>
+  </div>
+
+  <form class="miolo" id="form" novalidate>
+    <div>
+      <h2 id="formTitulo"></h2>
+      <p class="diz" id="formApoio"></p>
+    </div>
+
+    <div class="offline" id="offline"></div>
+
+    <div class="campos">
+      <div>
+        <label for="nome" id="rotNome"></label>
+        <input id="nome" name="nome" type="text" placeholder=""
+               autocomplete="given-name" autocapitalize="words" enterkeyhint="next" maxlength="60">
+        <p class="erro" id="erroNome"></p>
+      </div>
+
+      <div>
+        <label for="tel" id="rotTel"></label>
+        <input id="tel" name="tel" type="tel" placeholder=""
+               autocomplete="tel-national" inputmode="numeric" enterkeyhint="done" maxlength="16">
+        <p class="erro" id="erroTel"></p>
+      </div>
+
+      <input class="hp" id="hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="lgpd">
+        <input id="ok" type="checkbox">
+        <label class="consent" for="ok" id="consent"></label>
+      </div>
+      <p class="erro" id="erroOk" style="margin-left:37px"></p>
+    </div>
+
+    <button type="submit" class="cta" id="btnEnviar"></button>
+  </form>
+
+  <div class="grupo"></div>
+</section>
+
+
+<!-- ══ TELA 3 · confirmação ═══════════════════════════════ -->
+<section class="tela ok" id="sucesso" aria-live="polite">
+  <div class="top">
+    <div class="esq"><div class="canto"></div></div>
+  </div>
+
+  <div class="miolo">
+    <div class="selo" id="selo"></div>
+    <p class="posRotulo" id="posRotulo"></p>
+    <h2 id="okTitulo"></h2>
+    <p id="okApoio"></p>
+    <a class="zap" id="zap" href="#" target="_blank" rel="noopener"></a>
+  </div>
+
+  <div class="grupo"></div>
+</section>
+
+
+<!-- Textos e ajustes ficam em configuracao.js. O ?t= no fim impede o
+     navegador de guardar uma versão antiga depois que você editar. -->
+<script>
+/* O ?t= impede o navegador de guardar uma versão antiga depois que você edita.
+   Mas em arquivo aberto direto (file://) o navegador procuraria literalmente
+   "configuracao.js?t=123", que não existe — então lá vai sem o sufixo. */
+(function(){
+  var v = location.protocol === 'file:' ? '' : '?t=' + Date.now();
+  document.write('<scr' + 'ipt src="configuracao.js' + v + '"><\/scr' + 'ipt>');
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   PADRÕES
+   ══════════════════════════════════════════════════════════ */
+const PADRAO = {
+  empresa:'LINK EXPLORER', evento:'EVENTO', whatsapp:'5500000000000', totalVagas:100,
+
+  frasePosicionamento:'O agro não para. Sua internet também não.',
+  tituloLinha1:'3 meses de internet', tituloLinha2:'por nossa conta.',
+  subtitulo:'Para os {vagas} primeiros cadastros do evento.',
+  botaoCapa:'Garanta a sua', seloGrupo:'Grupo',
+  textoLegal:'Para os {vagas} primeiros cadastros. R$ 99,90/mês (800 Mbps) nos 3 primeiros meses, depois R$ 129,90/mês. Fidelidade 12 meses. Sujeito a viabilidade técnica e regulamento.',
+
+  formTitulo1:'Falta só', formTitulo2:'o seu contato.',
+  formApoio:'A gente te chama no WhatsApp para confirmar a vaga.',
+  rotuloNome:'Seu nome', dicaNome:'Como te chamamos?',
+  rotuloTel:'Seu WhatsApp', dicaTel:'(00) 00000-0000',
+  textoConsentimento:'Ao se cadastrar, você concorda com nossa {politica}.',
+  textoPolitica:'Política de Privacidade',
+  linkPolitica:'',
+  botaoEnviar:'Garantir minha vaga',
+
+  okDentroTitulo:'PARABÉNS!',
+  okDentroApoio:'Seus 3 meses estão reservados. Vamos agendar sua instalação?',
+  okDentroBotao:'Agendar no WhatsApp',
+  msgDentro:'Oi! Sou {nome}, sou o {posicao}º cadastro da {evento} e quero agendar a instalação dos meus 3 meses grátis.',
+
+  okForaTitulo:'Você entrou na fila',
+  okForaApoio:'As 100 vagas já foram preenchidas, mas você está na fila!\nVamos conferir a viabilidade no seu endereço?',
+  rotuloPosicao:'sua posição',
+  okForaBotao:'Falar com a Link Explorer',
+  msgFora:'Oi! Sou {nome}, fui o {posicao}º cadastro da {evento}. Quero conferir a viabilidade no meu endereço e entrar na fila.',
+
+  okSemNumTitulo:'Cadastro recebido',
+  okSemNumApoio:'Seu cadastro está salvo! Entraremos em contato.',
+  okSemNumBotao:'Falar no WhatsApp',
+  msgSemNum:'Oi! Sou {nome}, acabei de me cadastrar na {evento} e quero saber a minha posição.',
+
+  enviando:'Enviando...',
+
+  avisoOffline:'Sem internet agora. Pode cadastrar: guardamos e enviamos sozinho quando a rede voltar.',
+  erroNome:'Digite seu nome', erroTel:'Confira o número: DDD + 9 dígitos',
+  erroLgpd:'Marque a caixa para continuar',
+
+  imagem:'capa.jpg', video:'capa-video.mp4',
+  logoUrl:'logo.png', logoGrupo:'logo-age.png', logoEvento:'logo-evento.png',
+  logoCanto:'logo-icone.png',
+  supabaseUrl:'', supabaseKey:'',
+};
+
+/* O que estiver em configuracao.js manda; o que faltar cai no padrão acima.
+   Assim um texto apagado por engano não deixa a tela em branco. */
+const CONFIG = Object.assign({}, PADRAO, window.SITE || {});
+
+/* Se o arquivo de textos tiver um erro de digitação, a página continua de pé
+   com os textos padrão. Só que em silêncio — então aviso na tela enquanto você
+   edita no computador. No ar, para quem está no evento, isso nunca aparece. */
+if(!window.SITE && ['localhost','127.0.0.1',''].includes(location.hostname)){
+  addEventListener('DOMContentLoaded', () => {
+    const a = document.createElement('div');
+    a.textContent = 'configuracao.js não carregou — a página está usando os textos originais. ' +
+                    'Provavelmente falta uma aspa ou uma vírgula. Erro no console (Cmd+Option+J).';
+    a.style.cssText = 'position:fixed;z-index:99;left:0;right:0;top:0;padding:11px 14px;' +
+      'background:#FFCE7A;color:#241a05;font:600 12.5px/1.35 -apple-system,sans-serif;text-align:center';
+    document.body.appendChild(a);
+  });
+}
+
+/* {vagas}, {nome} e {evento} são trocados pelos valores reais. */
+const txt = (modelo, vals) => String(modelo ?? '')
+  .replace(/\{(\w+)\}/g, (m, k) => (vals && k in vals) ? vals[k] : m);
+const V = () => ({ vagas: CONFIG.totalVagas, evento: CONFIG.evento });
+/* ══════════════════════════════════════════════════════════ */
+
+const $  = (i) => document.getElementById(i);
+const $$ = (s) => document.querySelectorAll(s);
+const FILA = 'lp_leads_pendentes_v1';
+
+/* ── monta a partir da configuração ── */
+/* Todo texto da tela vem daqui — nada fica escrito no HTML.
+   textContent (e não innerHTML) para que um < ou & digitado
+   no arquivo de textos vire caractere, não marcação quebrada. */
+if(CONFIG.logoEvento){
+  const b = document.createElement('img');
+  b.src = CONFIG.logoEvento; b.alt = CONFIG.evento;
+  $('evento').replaceChildren(b);
+} else {
+  $('evento').textContent = CONFIG.evento;
+}
+
+// TELA 1
+$('titulo').replaceChildren(
+  Object.assign(document.createElement('span'), {className:'l1', textContent: CONFIG.tituloLinha1}),
+  Object.assign(document.createElement('em'),   {textContent: CONFIG.tituloLinha2})
+);
+
+/* Encolhe o texto só o necessário para caber inteiro numa linha.
+   Assim "3 MESES DE INTERNET" não quebra no meio — e se você escrever um
+   texto mais comprido, ele se ajusta sozinho em vez de quebrar torto. */
+function caber(el, larguras, minimo){
+  el.style.fontSize = '';
+  const disponivel = el.parentElement.clientWidth;
+  const base = parseFloat(getComputedStyle(el).fontSize);
+  const maior = Math.max(...larguras());
+  if(maior > disponivel){
+    el.style.fontSize = Math.max(base * disponivel / maior, minimo).toFixed(1) + 'px';
+  }
+}
+
+function ajustarTextos(){
+  const h = $('titulo');
+  caber(h, () => [...h.querySelectorAll('.l1, em')].map(e => e.scrollWidth), 21);
+  const f = $('posicionamento');
+  if(f && !f.hidden) caber(f, () => [f.scrollWidth], 11);
+}
+ajustarTextos();
+// a Poppins muda a largura do texto: refaz a conta quando ela chega
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarTextos);
+addEventListener('resize', ajustarTextos);
+addEventListener('orientationchange', ajustarTextos);
+$('posicionamento').textContent = CONFIG.frasePosicionamento || '';
+$('posicionamento').hidden      = !CONFIG.frasePosicionamento;
+$('sub').textContent      = txt(CONFIG.subtitulo, V());
+$('btnCapa').textContent  = CONFIG.botaoCapa;
+$('legal').textContent    = txt(CONFIG.textoLegal, V());
+
+// TELA 2
+$('formTitulo').replaceChildren(
+  document.createTextNode(CONFIG.formTitulo1 + ' '),
+  Object.assign(document.createElement('em'), {textContent: CONFIG.formTitulo2})
+);
+$('formApoio').textContent  = CONFIG.formApoio;
+$('rotNome').textContent    = CONFIG.rotuloNome;
+$('rotTel').textContent     = CONFIG.rotuloTel;
+$('nome').placeholder       = CONFIG.dicaNome;
+$('tel').placeholder        = CONFIG.dicaTel;
+/* A frase é montada em pedaços para o link virar um <a> de verdade,
+   sem precisar escrever HTML dentro do arquivo de textos. */
+(() => {
+  const c = $('consent');
+  const partes = String(CONFIG.textoConsentimento || '').split('{politica}');
+  c.replaceChildren(document.createTextNode(partes[0] || ''));
+  if(partes.length > 1){
+    const nome = CONFIG.textoPolitica || 'Política de Privacidade';
+    if(CONFIG.linkPolitica){
+      const a = document.createElement('a');
+      a.href = CONFIG.linkPolitica; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = nome;
+      // o link mora dentro do rótulo: sem isto, tocar nele marcaria a caixa
+      a.addEventListener('click', (ev) => ev.stopPropagation());
+      c.appendChild(a);
+    } else {
+      c.appendChild(document.createTextNode(nome));
+    }
+    c.appendChild(document.createTextNode(partes[1] || ''));
+  }
+})();
+$('btnEnviar').textContent  = CONFIG.botaoEnviar;
+$('offline').textContent    = CONFIG.avisoOffline;
+
+// TELA 3 é montada no envio: depende da posição que o banco devolver.
+
+document.title = '3 meses grátis · ' + CONFIG.empresa;
+
+$('logo').innerHTML = CONFIG.logoUrl
+  ? '<img src="' + CONFIG.logoUrl + '" alt="' + CONFIG.empresa + '">'
+  : '<span class="marca"></span>';
+if(!CONFIG.logoUrl) $('logo').firstChild.textContent = CONFIG.empresa;
+
+if(CONFIG.logoCanto){
+  $$('.canto').forEach(c => {
+    c.replaceChildren(Object.assign(document.createElement('img'),
+      {src: CONFIG.logoCanto, alt: CONFIG.empresa}));
+    c.classList.add('on');
+  });
+}
+
+if(CONFIG.logoGrupo){
+  $$('.grupo').forEach(g => {
+    g.replaceChildren(
+      Object.assign(document.createElement('span'), {textContent: CONFIG.seloGrupo}),
+      Object.assign(document.createElement('img'), {src: CONFIG.logoGrupo, alt: CONFIG.seloGrupo})
+    );
+    g.classList.add('on');
+  });
+}
+
+// A foto entra só depois de carregar: nada de tela quebrada em rede ruim.
+if(CONFIG.imagem){
+  const img = $('bgImg');
+  img.addEventListener('load', () => img.classList.add('on'));
+  img.src = CONFIG.imagem;
+}
+
+/* O vídeo é bônus, nunca requisito ────────────────────────────
+   Num show o 4G está saturado. Só busco o vídeo se a conexão
+   aguentar; se não, a foto de espera segura a capa sozinha e
+   ninguém percebe falta. Autoplay bloqueado dá no mesmo.     */
+if(CONFIG.video){
+  const c = navigator.connection || {};
+  const semChance = c.saveData === true || ['slow-2g','2g'].includes(c.effectiveType);
+  if(!semChance){
+    const v = $('bgVid');
+
+    // Em vez de confiar no rótulo da conexão (que erra muito), dou um prazo:
+    // se o vídeo não estiver tocável a tempo, desisto e libero a banda.
+    const desistir = setTimeout(() => {
+      v.removeAttribute('src'); v.load();
+    }, 6000);
+
+    v.addEventListener('canplay', () => {
+      clearTimeout(desistir);
+      const t = v.play();
+      if(t && t.catch) t.catch(()=>{});          // autoplay negado: fica a foto
+      v.classList.add('on');
+    }, {once:true});
+
+    // Quem sai da página e volta (trocou de app, atendeu uma ligação) encontra
+    // o vídeo pausado pelo navegador. Retoma sozinho.
+    document.addEventListener('visibilitychange', () => {
+      if(!document.hidden && v.classList.contains('on') && v.paused){
+        const t = v.play(); if(t && t.catch) t.catch(()=>{});
+      }
+    });
+
+    v.preload = 'auto';
+    v.src = CONFIG.video;
+  }
+}
+
+/* ── navegação entre as telas ────────────────────────────────
+   O botão "voltar" do celular volta para a capa em vez de sair
+   da página — quem sai por engano no evento não volta mais.  */
+let tela = 'capa';
+function mostrar(nova){
+  if(tela === nova) return;
+  const ordem = ['capa','form','ok'];
+  const saindo = $(tela === 'capa' ? 'capa' : tela === 'form' ? 'telaForm' : 'sucesso');
+  const entrando = $(nova === 'capa' ? 'capa' : nova === 'form' ? 'telaForm' : 'sucesso');
+  const avancando = ordem.indexOf(nova) > ordem.indexOf(tela);
+
+  saindo.classList.remove('on');
+  saindo.classList.toggle('esq', avancando);
+  entrando.classList.remove('esq');
+  entrando.classList.add('on');
+
+  document.body.classList.toggle('t-form', nova === 'form');
+  tela = nova;
+}
+
+$('btnCapa').addEventListener('click', () => {
+  mostrar('form');
+  history.pushState({tela:'form'}, '');
+  setTimeout(() => $('nome').focus({preventScroll:true}), 300);
+});
+$('btnVoltar').addEventListener('click', () => history.back());
+window.addEventListener('popstate', () => { if(tela !== 'capa') mostrar('capa'); });
+
+/* ── fila offline: nada se perde ────────────────────────────
+   Grava local ANTES de tentar a rede. Em evento lotado o 4G
+   cai, e é aí que a maioria das páginas perde os leads.     */
+function lerFila(){
+  try { return JSON.parse(localStorage.getItem(FILA) || '[]'); } catch { return []; }
+}
+function gravarFila(itens){
+  try { localStorage.setItem(FILA, JSON.stringify(itens)); } catch {}
+}
+function enfileirar(lead){ const f = lerFila(); f.push(lead); gravarFila(f); }
+
+/* Devolve a POSIÇÃO da pessoa (1, 89, 170...) ou null se não deu.
+   O número é atribuído pelo banco, nunca aqui: duas pessoas cadastrando
+   ao mesmo tempo receberiam o mesmo se fosse calculado no navegador. */
+async function enviar(lead){
+  if(!CONFIG.supabaseUrl || !CONFIG.supabaseKey) return null;
+  const r = await fetch(CONFIG.supabaseUrl + '/rest/v1/rpc/registrar_lead', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey': CONFIG.supabaseKey,
+      'Authorization':'Bearer ' + CONFIG.supabaseKey
+    },
+    body: JSON.stringify({
+      p_nome: lead.nome, p_telefone: lead.telefone,
+      p_consentimento: lead.consentimento, p_evento: lead.evento,
+      p_origem: lead.origem, p_criado_em: lead.criado_em
+    })
+  });
+  if(!r.ok) return null;
+  const n = parseInt(await r.text(), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+const espera = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function esvaziarFila(){
+  const fila = lerFila();
+  if(!fila.length || !navigator.onLine) return;
+  const restantes = [];
+  for(const lead of fila){
+    try { if(await enviar(lead) === null) restantes.push(lead); }
+    catch { restantes.push(lead); }
+  }
+  gravarFila(restantes);
+}
+window.addEventListener('online',  () => { esvaziarFila(); atualizaOffline(); });
+window.addEventListener('offline', atualizaOffline);
+setInterval(esvaziarFila, 20000);
+esvaziarFila();
+
+function atualizaOffline(){ $('offline').classList.toggle('on', !navigator.onLine); }
+atualizaOffline();
+
+
+/* ── máscara e validação ─────────────────────────────────────
+   Número errado = lead morto. É a maior fonte de perda.     */
+const tel = $('tel');
+tel.addEventListener('input', () => {
+  const d = tel.value.replace(/\D/g,'').slice(0,11);
+  let v = d;
+  if(d.length > 6)      v = '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  else if(d.length > 2) v = '(' + d.slice(0,2) + ') ' + d.slice(2);
+  else if(d.length > 0) v = '(' + d;
+  tel.value = v;
+  limpaErro(tel, 'erroTel');
+});
+$('nome').addEventListener('input', () => limpaErro($('nome'), 'erroNome'));
+$('ok').addEventListener('change',  () => limpaErro($('ok'),   'erroOk'));
+
+function limpaErro(el, id){ el.setAttribute('aria-invalid','false'); $(id).classList.remove('on'); }
+function mostraErro(el, id, msg){
+  el.setAttribute('aria-invalid','true'); $(id).textContent = msg; $(id).classList.add('on');
+}
+function telValido(d){
+  if(d.length !== 11) return false;        // DDD + 9 dígitos
+  if(+d.slice(0,2) < 11) return false;     // DDD inexistente
+  if(d[2] !== '9') return false;           // celular começa com 9
+  if(/^(\d)\1+$/.test(d)) return false;    // 11111111111
+  return true;
+}
+
+/* ── envio ── */
+/* Três desfechos: dentro das 100, fora das 100, ou posição ainda
+   desconhecida (a rede caiu). O WhatsApp NÃO abre sozinho — a pessoa
+   toca no botão quando quiser. */
+function mostrarSucesso(pos, primeiroNome){
+  const vals = {nome: primeiroNome, posicao: pos, evento: CONFIG.evento};
+  let titulo, apoio, botao, msg, estilo;
+
+  if(pos === null){
+    titulo=CONFIG.okSemNumTitulo; apoio=CONFIG.okSemNumApoio;
+    botao=CONFIG.okSemNumBotao;   msg=CONFIG.msgSemNum;    estilo='check';
+  } else if(pos <= CONFIG.totalVagas){
+    titulo=CONFIG.okDentroTitulo; apoio=CONFIG.okDentroApoio;
+    botao=CONFIG.okDentroBotao;   msg=CONFIG.msgDentro;    estilo='dentro';
+  } else {
+    titulo=CONFIG.okForaTitulo;   apoio=CONFIG.okForaApoio;
+    botao=CONFIG.okForaBotao;     msg=CONFIG.msgFora;      estilo='fora';
+  }
+
+  $('selo').className = 'selo ' + estilo;
+  $('selo').textContent = (pos === null) ? '' : pos + 'º';
+  $('posRotulo').textContent = (pos === null) ? '' : CONFIG.rotuloPosicao;
+  $('okTitulo').textContent = txt(titulo, vals);
+  $('okApoio').replaceChildren(
+    ...String(txt(apoio, vals)).split('\n').map(l =>
+      Object.assign(document.createElement('span'), {className:'linha', textContent: l}))
+  );
+  $('zap').textContent      = botao;
+  $('zap').href = 'https://wa.me/' + CONFIG.whatsapp +
+                  '?text=' + encodeURIComponent(txt(msg, vals));
+}
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if($('hp').value) return;                // bot caiu no honeypot
+
+  // Normaliza o nome: quem digita correndo no evento manda tudo minúsculo,
+  // e o follow-up no WhatsApp fica com cara de robô.
+  const nome = $('nome').value.trim().replace(/\s+/g,' ').toLocaleLowerCase('pt-BR')
+    .split(' ')
+    .map((p,i) => (i > 0 && ['de','da','do','das','dos','e'].includes(p))
+      ? p : p.charAt(0).toLocaleUpperCase('pt-BR') + p.slice(1));
+  const nomeFmt = nome.join(' ');
+  const d = tel.value.replace(/\D/g,'');
+  let erro = false;
+
+  if(nomeFmt.length < 2 || !/[A-Za-zÀ-ÿ]/.test(nomeFmt)){
+    mostraErro($('nome'), 'erroNome', CONFIG.erroNome); erro = true;
+  }
+  if(!telValido(d)){
+    mostraErro(tel, 'erroTel', CONFIG.erroTel); erro = true;
+  }
+  if(!$('ok').checked){
+    mostraErro($('ok'), 'erroOk', CONFIG.erroLgpd); erro = true;
+  }
+  if(erro){ document.querySelector('[aria-invalid="true"]').focus({preventScroll:false}); return; }
+
+  $('btnEnviar').disabled = true;
+  const rotuloBotao = $('btnEnviar').textContent;
+  $('btnEnviar').textContent = CONFIG.enviando;
+
+  const lead = {
+    nome: nomeFmt,
+    telefone: d,                            // só dígitos: evita duplicata
+    consentimento: true,
+    evento: CONFIG.evento,
+    origem: new URLSearchParams(location.search).get('o') || 'qr',
+    criado_em: new Date().toISOString()
+  };
+
+  enfileirar(lead);                         // 1º grava local (instantâneo)
+
+  const pedido = enviar(lead)
+    .then(pos => {
+      if(pos !== null){
+        gravarFila(lerFila().filter(l => l.criado_em !== lead.criado_em));
+      }
+      return pos;
+    })
+    .catch(() => null);
+
+  /* Espero um pouco pela posição para não mostrar uma tela e trocar logo
+     em seguida. Se a rede estiver ruim, mostro o desfecho neutro na hora
+     e melhoro a tela se o número chegar depois — ninguém fica esperando. */
+  const primeiro = nome[0];
+  const rapido = await Promise.race([pedido, espera(2500).then(() => undefined)]);
+
+  mostrarSucesso(rapido === undefined ? null : rapido, primeiro);
+  mostrar('ok');
+  $('btnEnviar').disabled = false;
+  $('btnEnviar').textContent = rotuloBotao;
+
+  if(rapido === undefined){
+    const tardio = await Promise.race([pedido, espera(9000).then(() => undefined)]);
+    if(typeof tardio === 'number') mostrarSucesso(tardio, primeiro);
+  }
+});
+</script>
+</body>
+</html>
