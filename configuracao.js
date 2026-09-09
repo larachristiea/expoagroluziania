@@ -33,7 +33,7 @@ window.SITE = {
   seloGrupo:    'Grupo',                   // palavrinha antes do logo da AGE
 
   textoLegal:   'Para os {vagas} primeiros cadastros: 3 primeiros meses grátis no plano ' +
-                'de 800 Mbps. A partir do 4º mês, R$ 129,90/mês. Fidelidade 12 meses. ' +
+                'de 800 Mbps. A partir do 4º mês, R$ 129,90/mês por 9 meses. ' +
                 'Sujeito a viabilidade técnica e regulamento.',
 
   /* ── TELA 2 · FORMULÁRIO ───────────────────────────────────── */
