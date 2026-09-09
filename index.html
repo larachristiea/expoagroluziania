@@ -241,9 +241,16 @@ input[aria-invalid="true"]{border-color:var(--danger)}
    Sem arquivo extra e sem download a mais. */
 @media (min-width:700px){
   .bg img,.bg video{
-    left:50%;right:auto;width:min(520px,100%);
+    left:50%;right:auto;width:min(700px,100%);
     transform:translateX(-50%);
-    box-shadow:0 0 90px 30px rgba(4,20,31,.85);   /* funde a coluna nas laterais */
+    /* A borda do vídeo se dissolve no gradiente. Máscara, não sombra:
+       sombra desenha FORA do elemento e deixa o corte reto aparecendo.
+       Os 90px de cada lado são exatamente a folga até a coluna de texto
+       (700 - 520) / 2 — então o esmaecimento acontece fora do conteúdo. */
+    -webkit-mask-image:linear-gradient(to right,
+      transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+    mask-image:linear-gradient(to right,
+      transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
   }
   body.t-form .bg img.on,body.t-form .bg video.on{
     transform:translateX(-50%) scale(1.07);
