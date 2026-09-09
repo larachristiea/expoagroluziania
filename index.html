@@ -284,7 +284,7 @@ input[aria-invalid="true"]{border-color:var(--danger)}
 
 <div class="bg">
   <img id="bgImg" alt="" aria-hidden="true">
-  <video id="bgVid" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+  <video id="bgVid" muted loop playsinline autoplay preload="none" aria-hidden="true" tabindex="-1"></video>
 </div>
 <div class="scrim"></div>
 
@@ -593,18 +593,33 @@ if(CONFIG.video){
   if(!semChance){
     const v = $('bgVid');
 
-    // Em vez de confiar no rótulo da conexão (que erra muito), dou um prazo:
-    // se o vídeo não estiver tocável a tempo, desisto e libero a banda.
-    const desistir = setTimeout(() => {
-      v.removeAttribute('src'); v.load();
-    }, 6000);
+    /* Sair de cena sem estardalhaço: o vídeo some por transição e fica
+       a foto de espera, que é o primeiro quadro. Melhor um still limpo
+       do que um vídeo congelado num quadro qualquer no meio do loop. */
+    function desistirDoVideo(){
+      clearTimeout(prazo);
+      v.classList.remove('on');
+      setTimeout(() => { v.removeAttribute('src'); v.load(); }, 500);
+    }
 
-    v.addEventListener('canplay', () => {
-      clearTimeout(desistir);
+    // Se não estiver tocável a tempo, desisto e libero a banda.
+    const prazo = setTimeout(desistirDoVideo, 8000);
+
+    /* canplaythrough, e não canplay: canplay dispara com pouquíssimo buffer,
+       o vídeo começa e engasga logo em seguida. Aqui só entra quando o
+       navegador estima que roda até o fim sem parar. */
+    v.addEventListener('canplaythrough', () => {
+      clearTimeout(prazo);
       const t = v.play();
       if(t && t.catch) t.catch(()=>{});          // autoplay negado: fica a foto
       v.classList.add('on');
     }, {once:true});
+
+    /* Se mesmo assim engasgar, não adianta insistir: vídeo travado num
+       quadro do meio é pior que foto parada. Duas paradas e ele sai. */
+    let engasgos = 0;
+    v.addEventListener('waiting', () => { if(++engasgos >= 2) desistirDoVideo(); });
+    v.addEventListener('error', desistirDoVideo);
 
     // Quem sai da página e volta (trocou de app, atendeu uma ligação) encontra
     // o vídeo pausado pelo navegador. Retoma sozinho.
