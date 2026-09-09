@@ -618,8 +618,24 @@ if(CONFIG.video){
     /* Se mesmo assim engasgar, não adianta insistir: vídeo travado num
        quadro do meio é pior que foto parada. Duas paradas e ele sai. */
     let engasgos = 0;
-    v.addEventListener('waiting', () => { if(++engasgos >= 2) desistirDoVideo(); });
+    v.addEventListener('waiting', () => {
+      // só conta como engasgo se já tinha começado a andar
+      if(v.currentTime > 0 && ++engasgos >= 2) desistirDoVideo();
+    });
     v.addEventListener('error', desistirDoVideo);
+
+    /* iPhone em Modo de Baixo Consumo bloqueia autoplay — e no fim de um dia
+       de evento metade dos celulares está assim. O iOS bloqueia o autoplay,
+       mas nunca o toque: no primeiro toque em qualquer lugar da tela, tento
+       de novo. Quem toca em "Garanta a sua" já destrava o vídeo de quebra. */
+    const tentarNoToque = () => {
+      if(v.getAttribute('src') && v.paused){
+        const t = v.play();
+        if(t && t.then) t.then(() => v.classList.add('on')).catch(()=>{});
+      }
+    };
+    ['touchstart','pointerdown'].forEach(e =>
+      document.addEventListener(e, tentarNoToque, {once:true, passive:true}));
 
     // Quem sai da página e volta (trocou de app, atendeu uma ligação) encontra
     // o vídeo pausado pelo navegador. Retoma sozinho.
@@ -629,6 +645,7 @@ if(CONFIG.video){
       }
     });
 
+    v.muted = true;           // alguns iOS só respeitam a propriedade, não o atributo
     v.preload = 'auto';
     v.src = CONFIG.video;
   }
